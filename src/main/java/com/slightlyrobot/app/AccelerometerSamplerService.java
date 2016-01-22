@@ -1,6 +1,7 @@
+package com.slightlyrobot.app;
+
 import android.app.IntentService;
 import android.content.Intent;
-
 
 public class AccelerometerSamplerService extends IntentService {
 
@@ -9,7 +10,7 @@ public class AccelerometerSamplerService extends IntentService {
    * constructor with a name for the worker thread.
    */
   public AccelerometerSamplerService() {
-      super("HelloIntentService");
+      super("AccelerometerSamplerService");
   }
 
   /**
