@@ -19,6 +19,8 @@ public class Main extends Activity
         // Set up this Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        
+        System.out.println("Activity has been set up");
     }
     
     // TODO end AccelerometerSamplerService on distroy if necessary
