@@ -10,9 +10,12 @@ import android.hardware.SensorManager;
 
 import java.util.List;
 
+import com.slightlyrobot.app.RawRecordsDatabaseOpenHelper;
+
 public class AccelerometerSamplerService extends IntentService implements SensorEventListener{
 
     private SensorManager sm;
+    private RawRecordsDatabaseOpenHelper db;
     //private Sensor mSensor;
 
     /**
@@ -32,26 +35,26 @@ public class AccelerometerSamplerService extends IntentService implements Sensor
     protected void onHandleIntent(Intent intent) {
         // Normally we would do some work here, like download a file.
         // For our sample, we just sleep for 5 seconds.
-        long endTime = System.currentTimeMillis() + 5*1000;
-        while (System.currentTimeMillis() < endTime) {
-            synchronized (this) {
-                try {
-                    System.out.println("Data");
+        synchronized (this) {
+            try {
+                System.out.println("Mark collect data begin");
 
-                    sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-                    //mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+                sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+                //mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
-                    if (sm.getSensorList(Sensor.TYPE_ACCELEROMETER).size() != 0) {
-                        Sensor s = sm.getSensorList(Sensor.TYPE_ACCELEROMETER).get(0);
-                        sm.registerListener(this,s, SensorManager.SENSOR_DELAY_NORMAL);
-                    } else {
-                        // TODO raise exception
-                    }
 
-                    System.out.println("Data after");
-                    wait(endTime - System.currentTimeMillis());
-                } catch (Exception e) {
+                if (sm.getSensorList(Sensor.TYPE_ACCELEROMETER).size() != 0) {
+                    Sensor s = sm.getSensorList(Sensor.TYPE_ACCELEROMETER).get(0);
+                    sm.registerListener(this,s, SensorManager.SENSOR_DELAY_NORMAL);
+                } else {
+                    // TODO raise exception
                 }
+
+                db = new RawRecordsDatabaseOpenHelper(this);
+
+                System.out.println("Mark collect data end");
+            } catch (Exception e) {
+                // TODO learn how synchronized works
             }
         }
     }
@@ -62,6 +65,8 @@ public class AccelerometerSamplerService extends IntentService implements Sensor
         float mSensorY = event.values[1];
         float mSensorZ = event.values[2];
         System.out.println(mSensorX + ", " + mSensorY + ", " + mSensorZ);
+        
+        db.addDatum(mSensorX, mSensorY, mSensorZ);
     }
     
     @Override
