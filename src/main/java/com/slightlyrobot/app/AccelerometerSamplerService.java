@@ -13,7 +13,6 @@ import java.util.List;
 import com.slightlyrobot.app.RawRecordsDatabaseOpenHelper;
 
 public class AccelerometerSamplerService extends IntentService implements SensorEventListener{
-
     private SensorManager sm;
     private RawRecordsDatabaseOpenHelper db;
     //private Sensor mSensor;
@@ -33,8 +32,6 @@ public class AccelerometerSamplerService extends IntentService implements Sensor
     */
     @Override
     protected void onHandleIntent(Intent intent) {
-        // Normally we would do some work here, like download a file.
-        // For our sample, we just sleep for 5 seconds.
         synchronized (this) {
             try {
                 System.out.println("Mark collect data begin");
@@ -58,17 +55,17 @@ public class AccelerometerSamplerService extends IntentService implements Sensor
             }
         }
     }
-    
+
     @Override
     public void onSensorChanged(SensorEvent event) { 
         float mSensorX = event.values[0];
         float mSensorY = event.values[1];
         float mSensorZ = event.values[2];
         System.out.println(mSensorX + ", " + mSensorY + ", " + mSensorZ);
-        
+
         db.addDatum(mSensorX, mSensorY, mSensorZ);
     }
-    
+
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
         // Nothing to do here.
