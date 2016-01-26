@@ -2,6 +2,7 @@ package com.slightlyrobot.app;
 
 import android.content.Context;
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -58,12 +59,31 @@ public class RawRecordsDatabaseOpenHelper extends SQLiteOpenHelper {  // TODO sh
         db.close();
     }
     
-    //Testing placeholder
+    // Testing placeholder
     /**
      * Returns a length-3 array of the most recent x, y, z accelerometer samples
      */
     public double[] getLastValues () {
-        double[] PLACEHOLDER_OUTPUT = {2.3, 2.7, 8.1};
-        return PLACEHOLDER_OUTPUT;
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] QUERY_COLUMNS = {"x_raw", "y_raw", "z_raw"};
+
+        Cursor cursor =
+            db.query(RAW_RECORDS_TABLE_NAME, // table
+                    QUERY_COLUMNS, // column names
+                    null, // selections
+                    null, // selections args
+                    null, // group by
+                    null, // having
+                    "timestamp DESC", // order by
+                    "1"); // limit
+        if (cursor != null)
+            cursor.moveToFirst(); 
+
+        double[] output = {cursor.getDouble(0),
+                    cursor.getDouble(1),
+                    cursor.getDouble(2)};
+
+        return output;
     }
 }

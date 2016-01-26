@@ -9,7 +9,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.lang.InterruptedException;
 import java.lang.Runnable;
+import java.lang.Thread;
+import java.util.Random; // used for debugging
+import java.util.Timer;
+import java.util.TimerTask;
 
 import com.slightlyrobot.app.AccelerometerSamplerService;
 import com.slightlyrobot.app.RawRecordsDatabaseOpenHelper;
@@ -18,19 +23,8 @@ public class AccelerometerReadoutFragment extends Fragment {
 
     private Handler handler = new Handler();
     private final int interval = 1000;
-    private RawRecordsDatabaseOpenHelper db = new RawRecordsDatabaseOpenHelper(this.getActivity());
-    private int loopCount = 0;
 
-    private Runnable runnable = new Runnable() {
-        public void run() {
-            TextView textView = (TextView) getView().findViewById(R.id.readout_text_view);
-            double[] latestValues = db.getLastValues();
-            textView.setText(latestValues[0] + ", " + 
-                             latestValues[1] + ", " + 
-                             latestValues[2]);
-            handler.postDelayed(runnable, interval);
-        }
-    };
+    private Runnable runnable;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -39,10 +33,43 @@ public class AccelerometerReadoutFragment extends Fragment {
         return inflater.inflate(R.layout.accelerometer_readout_view, container, false);
     }
     
+    public class MyThread implements Runnable {
+        private Fragment fragment;
+
+        public MyThread(Fragment inputFragment) {
+            this.fragment = inputFragment;
+        }
+
+        @Override
+        public void run() {
+            RawRecordsDatabaseOpenHelper db = new RawRecordsDatabaseOpenHelper(fragment.getActivity());
+            TextView textView = (TextView) fragment.getView().findViewById(R.id.readout_text_view);
+            double[] latestValues = db.getLastValues();
+            textView.setText(latestValues[0] + ", " + 
+                            latestValues[1] + ", " + 
+                            latestValues[2]);
+        }
+    }
+    
+    public class MyTimerTask extends TimerTask {
+        private Fragment fragment;
+
+        public MyTimerTask(Fragment fragment) {
+            this.fragment = fragment;
+        }
+
+        @Override
+        public void run() {
+            MyThread myThread = new MyThread(fragment);
+            handler.postDelayed(myThread, 0);
+        }
+    }
+
     @Override
     public void onStart() {
         super.onStart();
-        handler.postDelayed(runnable, 0);
+        Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new MyTimerTask(this), 1000, 1000);
     }
 
     @Override
