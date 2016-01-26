@@ -57,4 +57,13 @@ public class RawRecordsDatabaseOpenHelper extends SQLiteOpenHelper {  // TODO sh
 
         db.close();
     }
+    
+    //Testing placeholder
+    /**
+     * Returns a length-3 array of the most recent x, y, z accelerometer samples
+     */
+    public double[] getLastValues () {
+        double[] PLACEHOLDER_OUTPUT = {2.3, 2.7, 8.1};
+        return PLACEHOLDER_OUTPUT;
+    }
 }
