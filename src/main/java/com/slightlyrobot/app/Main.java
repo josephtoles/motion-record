@@ -8,20 +8,36 @@ import com.slightlyrobot.app.AccelerometerSamplerService;
 
 public class Main extends Activity
 {
-    /** Called when the activity is first created. */
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
-        // Start the AccelerometerSamplerService
-        Intent intent = new Intent(this, AccelerometerSamplerService.class);
-        startService(intent);
-
+    public void onCreate(Bundle savedInstanceState) {
         // Set up this Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        
-        System.out.println("Activity has been set up");
+
+        // Start the AccelerometerSamplerService
+        Intent intent = new Intent(this, AccelerometerSamplerService.class);
+        startService(intent);
     }
     
-    // TODO end AccelerometerSamplerService on distroy if necessary
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        Intent intent = new Intent(this, AccelerometerSamplerService.class);
+        stopService(intent);
+    }
+    
+    @Override
+    public void onStart() {
+        super.onStart();
+        // TODO create update loop
+    }
+    
+    @Override
+    public void onStop() {
+        super.onStop();
+        // TODO kill update loop
+    }
+    
+    // TODO end AccelerometerSamplerService in onDestroy as a matter of form
 }

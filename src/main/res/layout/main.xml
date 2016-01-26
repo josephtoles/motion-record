@@ -2,12 +2,18 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    >
-<TextView
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:text="Hello World, Main"
-    />
+    android:layout_height="fill_parent">
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="This is your Main activity" />
+    
+    <fragment android:name="com.slightlyrobot.app.AccelerometerReadoutFragment"
+              android:id="@+id/accelerometer_readout_fragment"
+              android:layout_weight="2"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent" />
+
 </LinearLayout>
 
