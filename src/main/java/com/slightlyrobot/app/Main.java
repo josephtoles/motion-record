@@ -6,6 +6,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.Writer;
+import java.io.OutputStreamWriter;
 
 import com.slightlyrobot.app.AccelerometerSamplerService;
 import com.slightlyrobot.app.RawRecordsDatabaseOpenHelper;
@@ -43,20 +49,40 @@ public class Main extends Activity
         // TODO kill update loop
     }
     
-    public void exportRawData(View view) {
-        Log.d("exportRawData", "Sending output");
-        
+    /**
+     * @return if file is created successfully
+     */
+    private String createFileForExport() {
+        Log.d("createFileForExport", "creating file");
         RawRecordsDatabaseOpenHelper db = new RawRecordsDatabaseOpenHelper(this);
-        String emailBody = "Body of email";
-        emailBody = emailBody + db.getAllValues();
+        try {
+            String filePath = this.getExternalCacheDir() + "/output.csv";
+            FileOutputStream fos = new FileOutputStream(filePath);
+            Writer out = new OutputStreamWriter(fos, "UTF-8");
+            out.write(db.getCSVText());
+            out.flush();
+            out.close();
+            return filePath;
+        } catch (Throwable t) {
+            Toast.makeText(this, "Could not create file: " + t.toString(),
+            Toast.LENGTH_LONG).show();
+            return null;
+        }
+    }
+    
+    public void exportRawData(View view) {
+        String filePath = createFileForExport();
+        if(filePath == null)
+            return;
 
-        Intent intent = new Intent(Intent.ACTION_SENDTO); // it's not ACTION_SEND
+        Log.d("exportRawData", "Sending output");
+        Intent intent = new Intent(Intent.ACTION_SENDTO);
         intent.setType("text/plain");
         intent.putExtra(Intent.EXTRA_SUBJECT, "Your raw data");
-        intent.putExtra(Intent.EXTRA_TEXT, emailBody);
-        intent.setData(Uri.parse("mailto:default@recipient.com"));
-        // or just "mailto:" for blank
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // this will make such that when user returns to your app, your app is displayed, instead of the email app.
+        intent.putExtra(Intent.EXTRA_TEXT, "Email body"); // TODO add stuff here
+        intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + filePath));
+        intent.setData(Uri.parse("mailto:placeholder@gmail.com"));  // TODO change this
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // return to app after sending email
         startActivity(intent);
     }
     

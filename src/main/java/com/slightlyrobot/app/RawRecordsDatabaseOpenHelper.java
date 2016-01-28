@@ -89,7 +89,7 @@ public class RawRecordsDatabaseOpenHelper extends SQLiteOpenHelper {  // TODO sh
     }
     
     // TODO merge this function with getLastValues
-    public String getAllValues() {
+    public String getCSVText() {
         SQLiteDatabase db = this.getReadableDatabase();
 
         String[] QUERY_COLUMNS = {"timestamp", "x_raw", "y_raw", "z_raw"};
@@ -103,16 +103,12 @@ public class RawRecordsDatabaseOpenHelper extends SQLiteOpenHelper {  // TODO sh
                     null, // having
                     "timestamp DESC", // order by
                     null); // limit
-        if (cursor != null)
-            cursor.moveToFirst(); 
-
-        String outputTimestamp = cursor.getString(0);
         
         int maxRows = 200;
-        
         String csvText = "timestamp,xRaw,yRaw,zRaw";
         int row = 0;
-        if (cursor.moveToFirst()) {
+
+        if (cursor != null && cursor.moveToFirst()) {
            do {
                String timestamp = cursor.getString(0);
                double xRaw = cursor.getDouble(1);
@@ -120,10 +116,11 @@ public class RawRecordsDatabaseOpenHelper extends SQLiteOpenHelper {  // TODO sh
                double zRaw = cursor.getDouble(3);
  
                // TODO use CSV-handling library instead
-               csvText = "\n" + csvText + timestamp + ", " + xRaw + "," + yRaw + "," + zRaw;
+               csvText = csvText + "\n" + timestamp + ", " + xRaw + "," + yRaw + "," + zRaw;
            } while (cursor.moveToNext() && ++row < maxRows);
         }
 
-        return "Row count: " + row + "\n" + csvText;
+        return csvText;
+        //return "Row count: " + row + "\n" + csvText;
     }
 }
