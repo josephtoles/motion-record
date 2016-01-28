@@ -22,7 +22,7 @@ import com.slightlyrobot.app.RawRecordsDatabaseOpenHelper;
 public class AccelerometerReadoutFragment extends Fragment {
 
     private Handler handler = new Handler();
-    private final int interval = 1000;
+    private final int INTERVAL = 500;
 
     private Runnable runnable;
 
@@ -43,10 +43,10 @@ public class AccelerometerReadoutFragment extends Fragment {
         @Override
         public void run() {
             RawRecordsDatabaseOpenHelper db = new RawRecordsDatabaseOpenHelper(fragment.getActivity());
-            TextView textView = (TextView) fragment.getView().findViewById(R.id.readout_text_view);
             double[] latestValues = db.getLastValues();
-            textView.setText(latestValues[0] + ", " + 
-                            latestValues[1] + ", " + 
+            TextView textView = (TextView) fragment.getView().findViewById(R.id.readout_text_view);
+            textView.setText(latestValues[0] + "\n" + 
+                            latestValues[1] + "\n" + 
                             latestValues[2]);
         }
     }
@@ -69,7 +69,7 @@ public class AccelerometerReadoutFragment extends Fragment {
     public void onStart() {
         super.onStart();
         Timer timer = new Timer();
-        timer.scheduleAtFixedRate(new MyTimerTask(this), 1000, 1000);
+        timer.scheduleAtFixedRate(new MyTimerTask(this), INTERVAL, INTERVAL);
     }
 
     @Override

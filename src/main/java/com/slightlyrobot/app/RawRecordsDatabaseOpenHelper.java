@@ -26,7 +26,8 @@ public class RawRecordsDatabaseOpenHelper extends SQLiteOpenHelper {  // TODO sh
     public void onCreate(SQLiteDatabase db) {
         String CREATE_RAW_RECORDS_TABLE = "CREATE TABLE " + RAW_RECORDS_TABLE_NAME + " ( " +
             "id INTEGER PRIMARY KEY AUTOINCREMENT, " + 
-            "timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, " +  // String of format "2010-05-28T15:36:56.200"
+            // timestamp format "2010-05-28T15:36:56.200"
+            "timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, " +
             "x_raw NUMERIC, " +
             "y_raw NUMERIC, " +
             "z_raw NUMERIC )";
@@ -85,5 +86,44 @@ public class RawRecordsDatabaseOpenHelper extends SQLiteOpenHelper {  // TODO sh
                     cursor.getDouble(2)};
 
         return output;
+    }
+    
+    // TODO merge this function with getLastValues
+    public String getAllValues() {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] QUERY_COLUMNS = {"timestamp", "x_raw", "y_raw", "z_raw"};
+
+        Cursor cursor =
+            db.query(RAW_RECORDS_TABLE_NAME, // table
+                    QUERY_COLUMNS, // column names
+                    null, // selections
+                    null, // selections args
+                    null, // group by
+                    null, // having
+                    "timestamp DESC", // order by
+                    null); // limit
+        if (cursor != null)
+            cursor.moveToFirst(); 
+
+        String outputTimestamp = cursor.getString(0);
+        
+        int maxRows = 200;
+        
+        String csvText = "timestamp,xRaw,yRaw,zRaw";
+        int row = 0;
+        if (cursor.moveToFirst()) {
+           do {
+               String timestamp = cursor.getString(0);
+               double xRaw = cursor.getDouble(1);
+               double yRaw = cursor.getDouble(2);
+               double zRaw = cursor.getDouble(3);
+ 
+               // TODO use CSV-handling library instead
+               csvText = "\n" + csvText + timestamp + ", " + xRaw + "," + yRaw + "," + zRaw;
+           } while (cursor.moveToNext() && ++row < maxRows);
+        }
+
+        return "Row count: " + row + "\n" + csvText;
     }
 }
